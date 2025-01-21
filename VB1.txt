@@ -1,0 +1,18 @@
+Dim m ,n As Double
+m = Val(InputBox("输入第1个数:", "输入"))
+For i = 2 To 3
+	n = Val(InputBox("输入第" & i & "个数:", "输入"))
+	If n > m Then m = n
+Next
+MsgBox "最大值是：" & m, vbInformation, "结果"
+
+
+
+
+
+
+
+
+
+
+
