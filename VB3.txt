@@ -1,0 +1,30 @@
+Private Sub Command1_Click()
+    Dim a , b As Double
+    Dim op As String
+    Dim result As Double
+    a = Val(Text1.Text)
+    op = Trim(Text2.Text)
+    b = Val(Text3.Text)
+    Select Case op
+        Case "+"
+            result = a + b
+        Case "-"
+            result = a - b
+        Case "*"
+            result = a * b
+        Case "/"
+            If b = 0 Then
+                MsgBox "除数不能为零！", vbExclamation, "错误"
+                Exit Sub
+            Else
+                result = a / b
+            End If
+        Case Else
+            MsgBox "请输入有效的运算符（+、-、*、/）", vbExclamation, "错误"
+            Exit Sub
+    End Select
+    Text4.Text = result
+End Sub
+Private Sub Command2_Click()
+    end
+End Sub
