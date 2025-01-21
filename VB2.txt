@@ -1,0 +1,20 @@
+Private Sub Command1_Click()
+    Dim s As Integer
+    s = Val(Text1.Text)
+
+    If s < 0 Or s > 100 Then
+        MsgBox "您输入的成绩不在范围内，请重新输入成绩。", vbExclamation, "警告"
+        Text1.Text = ""
+        Text1.SetFocus
+    Else
+        If s > 85 Then
+            MsgBox "优秀", vbInformation, "成绩等级"
+        ElseIf s > 70 Then
+            MsgBox "良好", vbInformation, "成绩等级"
+        ElseIf s > 60 Then
+            MsgBox "合格", vbInformation, "成绩等级"
+        Else
+            MsgBox "不合格", vbCritical, "成绩等级"
+        End If
+    End If
+End Sub
