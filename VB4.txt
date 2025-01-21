@@ -1,0 +1,22 @@
+Private Sub Command1_Click()
+    Dim y , m , days As Integer
+    y = Val(InputBox("请输入年份:", "输入年份"))
+    m = Val(InputBox("请输入月份（1-12）:", "输入月份"))
+    If m < 1 Or m > 12 Then
+        MsgBox "请输入有效的月份（1-12）！", vbExclamation, "错误"
+        Exit Sub
+    End If
+    Select Case m
+        Case 1, 3, 5, 7, 8, 10, 12
+            days = 31
+        Case 4, 6, 9, 11
+            days = 30
+        Case 2
+            If (y Mod 4 = 0 And y Mod 100 <> 0) Or (y Mod 400 = 0) Then
+                days = 29
+            Else
+                days = 28
+            End If
+    End Select
+    MsgBox "该月有 " & days & " 天", vbInformation, "结果"
+End Sub
