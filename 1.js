@@ -24,43 +24,50 @@ async function handleRequest() {
 
   const html = `
     <!DOCTYPE html>
-    <html lang="zh-CN">
+    <html lang="zh-CN" class="dark">
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>全平台导航 | Workers</title>
+      <title>全能导航 | Workers</title>
       <style>
         :root {
-          /* iOS 优化色值 */
+          /* 颜色系统 */
           --bg-light: #ffffff;
+          --bg-dark: #0f172a;
           --text-light: #1e293b;
-          --border-light: rgba(0,0,0,0.12);
+          --text-dark: #f8fafc;
+          --border-light: rgba(0,0,0,0.1);
+          --border-dark: rgba(255,255,255,0.1);
           --card-bg-light: rgba(255,255,255,0.98);
+          --card-bg-dark: rgba(30,41,59,0.98);
+          --accent-light: #e2e8f0;
+          --accent-dark: #1e293b;
         }
 
         * {
           margin: 0;
           padding: 0;
           box-sizing: border-box;
-          -webkit-tap-highlight-color: transparent; /* 移除iOS点击高亮 */
+          transition: 
+            background 0.3s ease,
+            color 0.3s ease,
+            border-color 0.3s ease;
         }
 
         body {
           min-height: 100vh;
-          font-family: -apple-system, system-ui, sans-serif; /* 优先使用苹果字体 */
+          font-family: system-ui, -apple-system, sans-serif;
           background: var(--bg-light);
           color: var(--text-light);
           line-height: 1.5;
-          -webkit-font-smoothing: antialiased; /* 字体抗锯齿 */
         }
 
-        /* 移除链接下划线 */
-        a {
-          text-decoration: none;
-          color: inherit;
+        .dark {
+          background: var(--bg-dark);
+          color: var(--text-dark);
         }
 
-        /* 搜索框 (iOS输入优化) */
+        /* 搜索框 */
         .search-container {
           max-width: 800px;
           margin: 2rem auto;
@@ -73,11 +80,20 @@ async function handleRequest() {
           border-radius: 12px;
           background: var(--card-bg-light);
           color: var(--text-light);
-          font-size: 16px; /* iOS防止缩放 */
-          -webkit-appearance: none; /* 移除iOS默认样式 */
+          font-size: 1rem;
+          transition: all 0.3s;
+        }
+        .dark #searchInput {
+          border-color: var(--border-dark);
+          background: var(--card-bg-dark);
+          color: var(--text-dark);
+        }
+        #searchInput:focus {
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(66,153,225,0.2);
         }
 
-        /* 网格布局 (iOS滚动优化) */
+        /* 网格布局 */
         .grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -85,37 +101,97 @@ async function handleRequest() {
           max-width: 1200px;
           margin: 2rem auto;
           padding: 0 1rem;
-          -webkit-overflow-scrolling: touch; /* iOS弹性滚动 */
         }
 
-        /* 分类卡片 (iOS毛玻璃修复) */
+        /* 分类卡片 */
         .category {
           background: var(--card-bg-light);
           border: 1px solid var(--border-light);
           border-radius: 16px;
           padding: 1.5rem;
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px); /* Safari兼容 */
+          box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+        }
+        .dark .category {
+          background: var(--card-bg-dark);
+          border-color: var(--border-dark);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.2);
         }
 
-        /* 导航项 (iOS触摸优化) */
+        .category h2 {
+          font-size: 1.25rem;
+          margin-bottom: 1.5rem;
+          padding-bottom: 1rem;
+          border-bottom: 2px solid var(--border-light);
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        .dark .category h2 {
+          border-color: var(--border-dark);
+        }
+
+        /* 导航项 */
+        .nav-list {
+          display: grid;
+          gap: 0.75rem;
+        }
         .nav-item {
           display: flex;
           align-items: center;
           padding: 1rem;
           border-radius: 12px;
-          background: rgba(0,0,0,0.03);
-          transition: transform 0.2s cubic-bezier(.25,.1,.25,1); /* iOS动画曲线 */
+          text-decoration: none;
+          color: inherit;
+          background: rgba(255,255,255,0.5);
+          border: 1px solid transparent;
+          transition: all 0.2s;
         }
-        .nav-item:active {
-          transform: scale(0.98); /* 按压反馈 */
+        .nav-item:hover {
+          transform: translateY(-2px);
+          border-color: var(--border-light);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .dark .nav-item {
+          background: rgba(255,255,255,0.05);
+        }
+        .dark .nav-item:hover {
+          border-color: var(--border-dark);
         }
 
+        /* 移动端优化 */
         @media (max-width: 640px) {
-          /* iOS地址栏适配 */
           .grid {
-            padding-bottom: env(safe-area-inset-bottom);
+            gap: 1rem;
+            padding: 0 0.5rem;
           }
+          .category {
+            padding: 1rem;
+            border-radius: 12px;
+          }
+          .nav-item {
+            padding: 0.75rem;
+          }
+        }
+
+        /* 主题切换按钮 */
+        .theme-toggle {
+          position: fixed;
+          bottom: 2rem;
+          right: 2rem;
+          width: 3.5rem;
+          height: 3.5rem;
+          border-radius: 50%;
+          background: var(--card-bg-light);
+          border: 1px solid var(--border-light);
+          cursor: pointer;
+          display: grid;
+          place-items: center;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          transition: all 0.3s;
+        }
+        .dark .theme-toggle {
+          background: var(--card-bg-dark);
+          border-color: var(--border-dark);
         }
       </style>
     </head>
@@ -126,7 +202,7 @@ async function handleRequest() {
           id="searchInput" 
           placeholder="搜索网站..."
           oninput="filterSites()"
-          autocapitalize="off" <!-- 关闭iOS首字母大写 -->
+          aria-label="网站搜索"
         >
       </div>
 
@@ -139,7 +215,7 @@ async function handleRequest() {
                 <a href="${site.url}" 
                    class="nav-item" 
                    target="_blank"
-                   rel="noopener"
+                   rel="noopener noreferrer"
                    data-name="${site.name.toLowerCase()}">
                   <span style="margin-right: 0.8rem">${site.icon}</span>
                   ${site.name}
@@ -150,27 +226,57 @@ async function handleRequest() {
         `).join('')}
       </div>
 
+      <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+
       <script>
-        // 搜索过滤
+        // 主题切换
+        function toggleTheme() {
+          const htmlEl = document.documentElement
+          htmlEl.classList.toggle('dark')
+          localStorage.setItem('theme', htmlEl.classList.contains('dark') ? 'dark' : 'light')
+        }
+
+        // 搜索功能
         function filterSites() {
-          const searchTerm = document.getElementById('searchInput').value.toLowerCase()
-          document.querySelectorAll('.category').forEach(cat => {
-            let visible = 0
-            cat.querySelectorAll('.nav-item').forEach(item => {
-              const show = item.dataset.name.includes(searchTerm)
-              item.style.display = show ? 'flex' : 'none'
-              if (show) visible++
+          const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase()
+          const categories = document.querySelectorAll('.category')
+          
+          categories.forEach(cat => {
+            let visibleCount = 0
+            const items = cat.querySelectorAll('.nav-item')
+            
+            items.forEach(item => {
+              const match = item.dataset.name.includes(searchTerm)
+              item.style.display = match ? 'flex' : 'none'
+              if(match) visibleCount++
             })
-            cat.style.display = visible > 0 ? 'block' : 'none'
+            
+            cat.style.display = visibleCount > 0 ? 'block' : 'none'
           })
         }
 
-        // iOS 键盘收起监听
-        window.addEventListener('touchstart', () => {
-          if (document.activeElement.tagName === 'INPUT') {
-            document.activeElement.blur()
-          }
-        })
+        // 初始化主题
+        function initTheme() {
+          const savedTheme = localStorage.getItem('theme') || 
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+          document.documentElement.classList.toggle('dark', savedTheme === 'dark')
+        }
+
+        // 触摸优化
+        function setupTouch() {
+          document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('touchstart', () => {
+              item.style.transform = 'scale(0.98)'
+            })
+            item.addEventListener('touchend', () => {
+              item.style.transform = ''
+            })
+          })
+        }
+
+        // 初始化
+        initTheme()
+        setupTouch()
       </script>
     </body>
     </html>
