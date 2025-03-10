@@ -26,7 +26,7 @@ async function handleRequest() {
       sites: [
         { name: "性价比机场", url: "https://8.218.119.170", icon: "✈️", color: "#4285f4" },
         { name: "红杏云", url: "https://hongxingdl.com", icon: "✈️", color: "#008373" },
-        { name: "快猫", url: "https://maojia.net", icon: "✈️", color: "#DE5833" }
+        { name: "快猫", url: "https://maojia.net", icon: "✈️", color: "#DE5833" },
         { name: "山水云", url: "https://sy.wgkzg.com/#/login", icon: "✈️", color: "#DE5833" }
       ]
     },
