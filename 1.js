@@ -4,12 +4,30 @@ addEventListener('fetch', event => {
 
 async function handleRequest() {
   const navData = [
+    
     {
       category: "🚀 开发工具",
       sites: [
         { name: "GitHub", url: "https://github.com", icon: "🐙", color: "#181717" },
         { name: "Vercel", url: "https://vercel.com", icon: "▲", color: "#000000" },
         { name: "CodePen", url: "https://codepen.io", icon: "✏️", color: "#1e1f26" }
+      ]
+    },
+    {
+      category: "🔍 搜索引擎",
+      sites: [
+        { name: "Google", url: "https://google.com", icon: "🔍", color: "#4285f4" },
+        { name: "Bing", url: "https://bing.com", icon: "🔎", color: "#008373" },
+        { name: "DuckDuckGo", url: "https://duckduckgo.com", icon: "🦆", color: "#DE5833" }
+      ]
+    },
+    {
+      category: "✈️机场",
+      sites: [
+        { name: "性价比机场", url: "https://8.218.119.170", icon: "✈️", color: "#4285f4" },
+        { name: "红杏云", url: "https://hongxingdl.com", icon: "✈️", color: "#008373" },
+        { name: "快猫", url: "https://maojia.net", icon: "✈️", color: "#DE5833" }
+        { name: "山水云", url: "https://sy.wgkzg.com/#/login", icon: "✈️", color: "#DE5833" }
       ]
     },
     {
