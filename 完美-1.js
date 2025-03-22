@@ -35,15 +35,6 @@ async function handleRequest(request) {
       ]
     },
     {
-      category: "✈️ 机场",
-      sites: [
-        { name: "性价比机场", url: "https://8.218.119.170", color: "#4285f4" },
-        { name: "红杏云", url: "https://hongxingdl.com", color: "#008373" },
-        { name: "快猫", url: "https://maojia.net", color: "#DE5833" },
-        { name: "山水云", url: "https://sy.wgkzg.com/#/login", color: "#DE5833" }
-      ]
-    },
-    {
       category: "🤖 AI",
       sites: [
         { name: "ChatGPT", url: "https://chat.openai.com", color: "#10a37f" },
