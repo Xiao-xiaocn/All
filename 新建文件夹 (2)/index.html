@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>全能导航</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="icon/home.ico" type="image/x-icon">
+</head>
+<body>
+  <!-- 固定搜索框 -->
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="搜索网站..." oninput="filterSites()" aria-label="网站搜索">
+  </div>
+
+  <!-- 导航内容容器 -->
+  <div class="grid" id="navContainer">
+    <!-- JS 动态生成 -->
+  </div>
+
+  <!-- 主题切换按钮 -->
+  <button class="theme-toggle" id="themeToggleButton">🖥️</button>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

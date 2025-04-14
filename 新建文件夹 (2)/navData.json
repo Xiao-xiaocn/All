@@ -1,0 +1,53 @@
+[
+  {
+    "category": "⭐ 常用",
+    "sites": [
+      {
+        "name": "无影云电脑客户端下载",
+        "url": "https://www.aliyun.com/product/wuying/download",
+        "color": "#ff6a00"
+      },
+      {
+        "name": "ChatGPT",
+        "url": "https://chatgpt.com"
+      },
+      {
+        "name": "GitHub",
+        "url": "https://github.com"
+      },
+      {
+        "name": "DeepSeek",
+        "url": "https://chat.deepseek.com"
+      },
+      {
+        "name": "文件快递柜",
+        "url": "http://47.122.55.17"
+      }
+    ]
+  },
+  {
+    "category": "本站服务",
+    "sites": [
+      {
+        "name": "文件快递柜",
+        "url": "https://cloud.xlinkone.xyz/"
+      },
+      {
+        "name": "SUB",
+        "url": "https://sub.xlinkone.shop"
+      },
+      {
+        "name": "3X-UI",
+        "url": "https://xlinkone.shop:2083"
+      },
+      {
+        "name": "S-UI",
+        "url": "https://xlinkone.shop:2053"
+      },
+      {
+        "name": "1panel",
+        "url": "https://xlinkone.shop:8443"
+      }
+    ]
+  }
+]

@@ -1,0 +1,183 @@
+/* 禁止水平滚动 */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  padding: 10px;
+}
+
+#adminPanel {
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+h1, h2 {
+  text-align: center;
+  margin: 10px 0;
+}
+
+input[type="text"] {
+  width: 90%;
+  padding: 8px;
+  margin: 8px auto;
+  display: block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  width: 100%;
+  margin: 10px 0;
+  padding: 8px;
+  border: none;
+  background: #4285f4;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #357ae8;
+}
+
+.category-card {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  padding: 10px;
+  background: #fafafa;
+}
+
+.category-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.category-header input {
+  font-size: 1.2em;
+  border: none;
+  background: transparent;
+  flex: 1;
+  min-width: 200px;
+}
+
+.up-down-buttons {
+  display: flex;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.site-list {
+  margin-top: 10px;
+}
+
+.site-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 5px 0;
+}
+
+.site-item input {
+  margin: 5px 0;
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  flex: 1 1 45%;
+}
+
+/* 手机端优化 */
+@media (max-width: 480px) {
+  #adminPanel {
+    padding: 10px;
+  }
+  .up-down-buttons button {
+    flex: 1;
+    min-width: 40px;
+  }
+}
+
+/* 悬浮保存按钮样式 */
+#saveChangesBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  font-size: 24px;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #4285f4;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+/* 新增保存状态的弹出框样式 */
+.save-status {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* 开关按钮的样式 */
+.toggle-switch-btn {
+  position: absolute;
+  top: 20px; /* 距离顶部20px */
+  left: 20px; /* 距离左侧20px */
+  padding: 10px 20px;
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.3s ease;
+}
+
+/* 鼠标悬停时的样式 */
+.toggle-switch-btn:hover {
+  background-color: #357ae8;
+}
+
+/* 开关按钮激活状态的样式 */
+.toggle-switch-btn.active {
+  background-color: #34a853; /* 激活状态时的绿色 */
+}
+
+/* 激活状态时鼠标悬停的样式 */
+.toggle-switch-btn.active:hover {
+  background-color: #2c8f47;
+}

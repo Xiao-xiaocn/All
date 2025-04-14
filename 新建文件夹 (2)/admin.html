@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>导航管理后台</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div id="adminPanel">
+    <h1>导航管理后台</h1>
+    <button id="addCategoryBtn">添加新分类</button>
+    <div id="categoriesContainer">
+      <!-- 动态生成分类和站点列表 -->
+    </div>
+    <!-- 悬浮右下角的圆形保存按钮 -->
+    <button id="saveChangesBtn" title="保存更改">✓</button>
+    <div id="saveStatus" class="save-status"></div>
+  </div>
+  <script src="js/admin.js"></script>
+</body>
+</html>
