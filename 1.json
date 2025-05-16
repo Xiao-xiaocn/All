@@ -1,0 +1,77 @@
+[
+  {
+    "category": "⭐ 常用",
+    "sites": [
+      {
+        "name": "ChatGPT",
+        "url": "https://chatgpt.com"
+      },
+      {
+        "name": "GitHub",
+        "url": "https://github.com"
+      },
+      {
+        "name": "DeepSeek",
+        "url": "https://chat.deepseek.com"
+      },
+      {
+        "name": "免费SSL/TLS证书",
+        "url": "https://www.freegetssl.com/"
+      },
+      {
+        "name": "免费域名",
+        "url": "https://dash.domain.digitalplat.org/"
+      }
+    ]
+  },
+  {
+    "category": "好用推荐",
+    "sites": [
+      {
+        "name": "AIFUN",
+        "url": "https://dash.afun.la/"
+      },
+      {
+        "name": "红杏云",
+        "url": "https://hongxingdl.com"
+      },
+      {
+        "name": "性价比",
+        "url": "https://8.218.119.170/"
+      },
+      {
+        "name": "糖果云",
+        "url": "https://candytally.com/"
+      },
+      {
+        "name": "星河云",
+        "url": "https://svip.xingheyun.sbs/"
+      }
+    ]
+  },
+  {
+    "category": "本站服务",
+    "sites": [
+      {
+        "name": "文件快递柜",
+        "url": "https://cloud.xlinkone.xyz/"
+      },
+      {
+        "name": "SUB",
+        "url": "https://sub.xlinkone.shop"
+      },
+      {
+        "name": "DOH",
+        "url": "https://dns.xlinkone.xyz"
+      },
+      {
+        "name": "1panel",
+        "url": "https://xlinkone.shop:8443/xiaoxiao"
+      },
+      {
+        "name": "影视TV",
+        "url": "https://tv.xlinkone.shop"
+      }
+    ]
+  }
+]
