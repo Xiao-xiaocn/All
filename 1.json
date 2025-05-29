@@ -3,16 +3,54 @@
     "category": "⭐ 常用",
     "sites": [
       {
-        "name": "ChatGPT",
-        "url": "https://chatgpt.com"
+        "name": "住宅代理",
+        "url": "https://app.dataimpulse.com/"
       },
+      {
+        "name": "专线中转",
+        "url": "https://gorelay.net/"
+      },
+      {
+        "name": "Cloudflare",
+        "url": "https://dash.cloudflare.com"
+      }
+    ]
+  },
+  {
+    "category": "搜索引擎（含网络空间测绘）",
+    "sites": [
+      {
+        "name": "谷歌",
+        "url": "https://www.google.com"
+      },
+      {
+        "name": "必应",
+        "url": "https://cn.bing.com"
+      },
+      {
+        "name": "Yahoo",
+        "url": "https://www.yahoo.com"
+      },
+      {
+        "name": "FOFA",
+        "url": "https://fofa.info"
+      },
+      {
+        "name": "Shodan",
+        "url": "https://www.shodan.io"
+      }
+    ]
+  },
+  {
+    "category": "开发协作工具",
+    "sites": [
       {
         "name": "GitHub",
         "url": "https://github.com"
       },
       {
-        "name": "DeepSeek",
-        "url": "https://chat.deepseek.com"
+        "name": "GitLab",
+        "url": "https://gitlab.com"
       },
       {
         "name": "免费SSL/TLS证书",
@@ -25,27 +63,48 @@
     ]
   },
   {
-    "category": "好用推荐",
+    "category": "AI",
+    "sites": [
+      {
+        "name": "ChatGPT",
+        "url": "https://chatgpt.com"
+      },
+      {
+        "name": "DeepSeek",
+        "url": "https://chat.deepseek.com"
+      },
+      {
+        "name": "豆包",
+        "url": "https://www.doubao.com"
+      },
+      {
+        "name": "硅基流动",
+        "url": "https://siliconflow.cn/"
+      }
+    ]
+  },
+  {
+    "category": "机场推荐",
     "sites": [
       {
         "name": "AIFUN",
-        "url": "https://dash.afun.la/"
+        "url": "https://dash.afun.la/register?code=F624OHWD"
       },
       {
         "name": "红杏云",
-        "url": "https://hongxingdl.com"
+        "url": "https://hongxingdl.com/web/#/login?code=rkFUHLOr"
       },
       {
         "name": "性价比",
-        "url": "https://8.218.119.170/"
+        "url": "https://8.218.119.170/#/register?code=fkzdUanM"
       },
       {
         "name": "糖果云",
-        "url": "https://candytally.com/"
+        "url": "https://candytally.com/web/#/login?code=OaneYaiu"
       },
       {
         "name": "星河云",
-        "url": "https://svip.xingheyun.sbs/"
+        "url": "https://svip.xingheyun.sbs/register?code=CLuLKM49"
       }
     ]
   },
@@ -57,20 +116,87 @@
         "url": "https://cloud.xlinkone.xyz/"
       },
       {
-        "name": "SUB",
-        "url": "https://sub.xlinkone.shop"
-      },
-      {
         "name": "DOH",
-        "url": "https://dns.xlinkone.xyz"
+        "url": "https://dns.xlinkone.shop/"
       },
       {
-        "name": "1panel",
-        "url": "https://xlinkone.shop:8443/xiaoxiao"
+        "name": "📦GitHub 文件加速",
+        "url": "https://git.xlinkone.shop/"
       },
       {
         "name": "影视TV",
-        "url": "https://tv.xlinkone.shop"
+        "url": "https://tv.xlinkone.shop/"
+      },
+      {
+        "name": "SUB",
+        "url": "https://sub.xlinkone.xyz/"
+      }
+    ]
+  },
+  {
+    "category": "国内VPS",
+    "sites": [
+      {
+        "name": "阿里云",
+        "url": "https://www.aliyun.com"
+      },
+      {
+        "name": "腾讯云",
+        "url": "https://cloud.tencent.com"
+      },
+      {
+        "name": "华为云",
+        "url": "https://www.huaweicloud.com"
+      },
+      {
+        "name": "京东云",
+        "url": "https://www.jdcloud.com"
+      },
+      {
+        "name": "火山引擎",
+        "url": "https://www.volcengine.com/"
+      }
+    ]
+  },
+  {
+    "category": "国外VPS",
+    "sites": [
+      {
+        "name": "搬瓦工",
+        "url": "https://bandwagonhost.com/"
+      },
+      {
+        "name": "Vultr",
+        "url": "https://www.vultr.com/"
+      },
+      {
+        "name": "DigitalOcean",
+        "url": "https://www.digitalocean.com/"
+      },
+      {
+        "name": "Linode",
+        "url": "https://www.linode.com/"
+      },
+      {
+        "name": "ACCK",
+        "url": "https://acck.io/"
+      }
+    ]
+  },
+  {
+    "category": "后台",
+    "sites": [
+      {
+        "name": "导航后台",
+        "url": "https://www.xlinkone.xyz/admin.html"
+      },
+      {
+        "name": "1panel",
+        "url": "https://xlinkone.xyz:8443/xiaoxiao"
+      },
+      {
+        "name": "3x-ui",
+        "url": "https://xlinkone.xyz:2053/xiao"
       }
     ]
   }
