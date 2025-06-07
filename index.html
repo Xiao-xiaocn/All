@@ -3,51 +3,912 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的第一个网页</title>
+    <title>安全2FA验证器</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        /* 简单的CSS样式 */
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --success: #28a745;
+            --danger: #dc3545;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 20px;
-            max-width: 800px;
-        }
-        h1 {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-        }
-        .container {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            margin: 20px;
+        }
+        
+        header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        header p {
+            font-size: 16px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 15px;
+            border-radius: 50px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: white;
+            color: var(--primary);
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .section {
+            background: var(--light);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e4ff;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 15px rgba(106, 17, 203, 0.3);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+        
+        .flex-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .qr-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 25px;
+            border: 2px dashed #e0e4ff;
+        }
+        
+        #qrcode {
+            margin: 15px auto;
+            width: 180px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .accounts-list {
+            margin-top: 30px;
+        }
+        
+        .account-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .account-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary);
+            transition: transform 0.3s;
+        }
+        
+        .account-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .account-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .account-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            margin-right: 15px;
+        }
+        
+        .account-info {
+            flex: 1;
+        }
+        
+        .account-name {
+            font-weight: 700;
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .account-issuer {
+            font-size: 14px;
+            color: #777;
+        }
+        
+        .token-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .token {
+            font-size: 28px;
+            letter-spacing: 3px;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .timer {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #f0f5ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--primary);
+            position: relative;
+        }
+        
+        .timer-progress {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary) 0%, #f0f5ff 0%);
+            animation: none;
+        }
+        
+        @keyframes countdown {
+            from { background: conic-gradient(var(--primary) 100%, #f0f5ff 0%); }
+            to { background: conic-gradient(var(--primary) 0%, #f0f5ff 0%); }
+        }
+        
+        .timer-text {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 15px;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: #777;
+            cursor: pointer;
+            font-size: 14px;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .action-btn:hover {
+            color: var(--primary);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #777;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+        
+        .instructions h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .code-block {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: var(--success);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(200%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            background: rgba(0, 0, 0, 0.2);
+            font-size: 14px;
+        }
+        
+        @media (max-width: 600px) {
+            .flex-buttons {
+                flex-direction: column;
+            }
+            
+            .account-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="notification" id="notification">验证码已复制到剪贴板！</div>
+    
     <div class="container">
-        <h1>欢迎来到我的网站</h1>
+        <header>
+            <h1>安全2FA验证器</h1>
+            <p>符合RFC 6238标准的TOTP实现</p>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="app">验证器</div>
+                <div class="tab" data-tab="instructions">iOS快捷指令指南</div>
+            </div>
+        </header>
         
-        <section>
-            <h2>关于我们</h2>
-            <p>这是一个简单的HTML示例页面，包含以下元素：</p>
-            <ul>
-                <li>标题</li>
-                <li>段落</li>
-                <li>列表</li>
-                <li>图片</li>
-                <li>链接</li>
-            </ul>
-        </section>
+        <div class="main-content">
+            <div class="tab-content active" id="app-tab">
+                <div class="section">
+                    <h2>添加新账户</h2>
+                    
+                    <div class="input-group">
+                        <label for="account-name">账户名称</label>
+                        <input type="text" id="account-name" placeholder="例如: john@example.com" value="example@account">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="account-secret">2FA密钥 (Base32格式)</label>
+                        <input type="text" id="account-secret" placeholder="输入您的2FA密钥" value="JBSWY3DPEHPK3PXP">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="account-issuer">发行者（可选）</label>
+                        <input type="text" id="account-issuer" placeholder="例如: Google">
+                    </div>
+                    
+                    <div class="flex-buttons">
+                        <button class="btn" id="add-account-btn">
+                            添加账户
+                        </button>
+                        <button class="btn btn-outline" id="generate-btn">
+                            生成示例账户
+                        </button>
+                    </div>
+                    
+                    <div class="qr-container">
+                        <h3>二维码生成</h3>
+                        <p>扫描此二维码可在其他设备上添加此账户</p>
+                        <div id="qrcode"></div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2>我的验证账户</h2>
+                    <div class="account-cards" id="accounts-container">
+                        <div class="empty-state" id="empty-state">
+                            <h3>暂无2FA账户</h3>
+                            <p>添加上方的账户开始使用双重验证</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="instructions-tab">
+                <div class="section">
+                    <h2>通过iOS快捷指令使用此验证器</h2>
+                    
+                    <div class="instructions">
+                        <h3>方法1：通过URL运行（推荐）</h3>
+                        <ol>
+                            <li>复制下面的JavaScript代码</li>
+                            <li>在快捷指令中添加"运行JavaScript"操作</li>
+                            <li>粘贴代码并运行</li>
+                        </ol>
+                        
+                        <div class="code-block">
+// 在iOS快捷指令中运行此代码
+const htmlContent = `&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;!-- 所有CSS和JS代码 --&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;!-- HTML内容 --&gt;
+&lt;/body&gt;
+&lt;/html&gt;`;
 
-        <section>
-            <h2>示例图片</h2>
-            <img src="https://via.placeholder.com/600x400" alt="占位图片" width="600" height="400">
-        </section>
-
-        <section>
-            <h2>相关链接</h2>
-            <p>访问 <a href="https://www.example.com" target="_blank">示例网站</a> 获取更多信息</p>
-        </section>
+// 创建临时HTML文件
+const tempFile = Data.fromString(htmlContent, 'public.html');
+// 在Safari中打开
+Safari.open(tempFile);
+                        </div>
+                        
+                        <h3>方法2：保存为HTML文件</h3>
+                        <ol>
+                            <li>将此页面另存为HTML文件到iCloud</li>
+                            <li>创建快捷指令："获取文件" → 选择保存的HTML文件 → "预览内容"</li>
+                        </ol>
+                        
+                        <h3>方法3：通过Data URI直接打开</h3>
+                        <ol>
+                            <li>复制下面的Data URI链接</li>
+                            <li>在快捷指令中添加"URL"操作并粘贴</li>
+                            <li>添加"打开URL"操作</li>
+                        </ol>
+                        
+                        <div class="code-block">
+data:text/html;base64,PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9InpoLUNOIj4KPGhlYWQ+CiAgICA8bWV0YSBjaGFyc2V0PSJVVEYtOCI+CiAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCI+CiAgICA8dGl0bGU+SU9TIDJGQeW3peS9nOaZrzwvdGl0bGU+CiAgICA8c3R5bGU+CiAgICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5Pgo8L2JvZHk+CjwvaHRtbD4=
+                        </div>
+                        
+                        <div class="flex-buttons">
+                            <button class="btn" id="copy-js">
+                                复制JavaScript代码
+                            </button>
+                            <button class="btn btn-outline" id="copy-datauri">
+                                复制Data URI
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>安全提示：此验证器仅在您的浏览器中运行，数据不会发送到任何服务器</p>
+        </footer>
     </div>
+    
+    <script>
+        // 账户数据存储在localStorage
+        let accounts = JSON.parse(localStorage.getItem('2faAccounts')) || [];
+        
+        // Base32解码函数（RFC 4648）
+        function base32Decode(input) {
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+            input = input.replace(/=+$/, '').toUpperCase();
+            
+            let output = new Uint8Array(Math.floor(input.length * 5 / 8));
+            let buffer = 0;
+            let bitsLeft = 0;
+            let index = 0;
+            
+            for (let i = 0; i < input.length; i++) {
+                const char = input.charAt(i);
+                const value = alphabet.indexOf(char);
+                
+                if (value === -1) {
+                    throw new Error('Invalid base32 character: ' + char);
+                }
+                
+                buffer = (buffer << 5) | value;
+                bitsLeft += 5;
+                
+                if (bitsLeft >= 8) {
+                    output[index++] = (buffer >>> (bitsLeft - 8)) & 0xFF;
+                    bitsLeft -= 8;
+                }
+            }
+            
+            return output;
+        }
+        
+        // 动态截断函数
+        function dynamicTruncation(hmac) {
+            const offset = hmac[hmac.length - 1] & 0x0f;
+            return (
+                ((hmac[offset] & 0x7f) << 24) |
+                ((hmac[offset + 1] & 0xff) << 16) |
+                ((hmac[offset + 2] & 0xff) << 8) |
+                (hmac[offset + 3] & 0xff)
+            );
+        }
+        
+        // 生成TOTP验证码（RFC 6238标准）
+        function generateTOTP(secret, timestamp = Date.now()) {
+            try {
+                // 解码base32密钥
+                const key = base32Decode(secret);
+                
+                // 计算时间步长（30秒）
+                const counter = Math.floor(timestamp / 30000);
+                
+                // 将计数器转换为8字节数组（big-endian）
+                const counterBytes = new Uint8Array(8);
+                for (let i = 7; i >= 0; i--) {
+                    counterBytes[i] = counter & 0xff;
+                    counter >>>= 8;
+                }
+                
+                // 使用HMAC-SHA1
+                const hmac = CryptoJS.HmacSHA1(
+                    CryptoJS.lib.WordArray.create(counterBytes),
+                    CryptoJS.lib.WordArray.create(key)
+                );
+                
+                // 转换为字节数组
+                const hmacBytes = Array.from(
+                    new Uint8Array(hmac.wordsToBytes().asBytes())
+                );
+                
+                // 动态截断
+                const code = dynamicTruncation(hmacBytes);
+                
+                // 生成6位数字
+                return (code % 1000000).toString().padStart(6, '0');
+            } catch (e) {
+                console.error('TOTP生成错误:', e);
+                return 'ERROR';
+            }
+        }
+        
+        // 显示通知
+        function showNotification(message, duration = 2000) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, duration);
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置标签切换
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
+                });
+            });
+            
+            // 初始渲染
+            renderAccounts();
+            generateQRCode();
+            
+            // 设置倒计时更新
+            setInterval(updateTimers, 1000);
+            
+            // 添加账户按钮事件
+            document.getElementById('add-account-btn').addEventListener('click', addAccount);
+            
+            // 生成示例账户
+            document.getElementById('generate-btn').addEventListener('click', generateSampleAccount);
+            
+            // 复制代码按钮
+            document.getElementById('copy-js').addEventListener('click', copyJSCode);
+            document.getElementById('copy-datauri').addEventListener('click', copyDataURI);
+            
+            // 监听输入变化
+            document.getElementById('account-name').addEventListener('input', generateQRCode);
+            document.getElementById('account-secret').addEventListener('input', generateQRCode);
+            document.getElementById('account-issuer').addEventListener('input', generateQRCode);
+        });
+        
+        // 生成二维码
+        function generateQRCode() {
+            const accountName = document.getElementById('account-name').value || "example@account";
+            const secret = document.getElementById('account-secret').value || "JBSWY3DPEHPK3PXP";
+            const issuer = document.getElementById('account-issuer').value || "My2FAApp";
+            
+            const qrDiv = document.getElementById('qrcode');
+            qrDiv.innerHTML = '';
+            
+            const otpAuthUrl = `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(accountName)}?secret=${secret}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=6&period=30`;
+            
+            new QRCode(qrDiv, {
+                text: otpAuthUrl,
+                width: 180,
+                height: 180,
+                colorDark: "#6a11cb",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+        
+        // 添加账户
+        function addAccount() {
+            const nameInput = document.getElementById('account-name');
+            const secretInput = document.getElementById('account-secret');
+            const issuerInput = document.getElementById('account-issuer');
+            
+            const name = nameInput.value.trim();
+            const secret = secretInput.value.trim().replace(/\s/g, '');
+            const issuer = issuerInput.value.trim() || "自定义账户";
+            
+            if (!name) {
+                showNotification('请输入账户名称', 3000);
+                return;
+            }
+            
+            if (!secret || secret.length < 16) {
+                showNotification('请输入有效的2FA密钥（至少16个字符）', 3000);
+                return;
+            }
+            
+            // 验证密钥格式
+            if (!/^[A-Z2-7]+=*$/.test(secret)) {
+                showNotification('密钥必须是Base32格式（A-Z,2-7）', 3000);
+                return;
+            }
+            
+            const newAccount = {
+                id: Date.now().toString(),
+                name: name,
+                issuer: issuer,
+                secret: secret,
+                added: new Date().toISOString()
+            };
+            
+            accounts.push(newAccount);
+            saveAccounts();
+            renderAccounts();
+            
+            // 清空输入
+            nameInput.value = '';
+            secretInput.value = '';
+            issuerInput.value = '';
+            
+            // 重新生成二维码
+            generateQRCode();
+            
+            showNotification('账户添加成功！', 2000);
+        }
+        
+        // 生成示例账户
+        function generateSampleAccount() {
+            const services = ["Google", "Microsoft", "Apple", "GitHub", "Amazon"];
+            const names = ["work@company.com", "personal@gmail.com", "user@example.com"];
+            const secrets = ["JBSWY3DPEHPK3PXP", "4S62BZNFXXSZLCRO", "6L4AH6X4G4QHGQ3V"];
+            
+            const service = services[Math.floor(Math.random() * services.length)];
+            const name = names[Math.floor(Math.random() * names.length)];
+            const secret = secrets[Math.floor(Math.random() * secrets.length)];
+            
+            document.getElementById('account-name').value = name;
+            document.getElementById('account-secret').value = secret;
+            document.getElementById('account-issuer').value = service;
+            
+            generateQRCode();
+        }
+        
+        // 删除账户
+        function deleteAccount(id) {
+            accounts = accounts.filter(account => account.id !== id);
+            saveAccounts();
+            renderAccounts();
+            showNotification('账户已删除', 2000);
+        }
+        
+        // 更新所有计时器
+        function updateTimers() {
+            const now = new Date();
+            const seconds = now.getSeconds();
+            const timeLeft = 30 - (seconds % 30);
+            
+            // 更新所有卡片
+            document.querySelectorAll('.account-card').forEach((card) => {
+                const id = card.dataset.id;
+                const account = accounts.find(a => a.id === id);
+                
+                if (!account) return;
+                
+                const timer = card.querySelector('.timer-text');
+                const progress = card.querySelector('.timer-progress');
+                const tokenElement = card.querySelector('.token');
+                
+                if (timer && progress && tokenElement) {
+                    timer.textContent = timeLeft;
+                    
+                    // 重置动画
+                    progress.style.animation = 'none';
+                    void progress.offsetWidth; // 触发重绘
+                    progress.style.animation = `countdown 30s linear ${30-timeLeft}s infinite`;
+                    
+                    // 每30秒更新一次验证码
+                    if (timeLeft === 30) {
+                        tokenElement.textContent = generateTOTP(account.secret);
+                    }
+                }
+            });
+        }
+        
+        // 渲染账户列表
+        function renderAccounts() {
+            const container = document.getElementById('accounts-container');
+            
+            if (accounts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>暂无2FA账户</h3>
+                        <p>添加上方的账户开始使用双重验证</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            accounts.forEach((account) => {
+                const token = generateTOTP(account.secret);
+                const now = new Date();
+                const seconds = now.getSeconds();
+                const timeLeft = 30 - (seconds % 30);
+                
+                const accountCard = document.createElement('div');
+                accountCard.className = 'account-card';
+                accountCard.dataset.id = account.id;
+                
+                accountCard.innerHTML = `
+                    <div class="account-header">
+                        <div class="account-icon">
+                            ${account.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="account-info">
+                            <div class="account-name">${account.name}</div>
+                            <div class="account-issuer">${account.issuer}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="token-section">
+                        <div class="token">${token}</div>
+                        <div class="timer">
+                            <div class="timer-progress" style="animation: countdown 30s linear ${30-timeLeft}s infinite"></div>
+                            <div class="timer-text">${timeLeft}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="actions">
+                        <button class="action-btn" onclick="copyToken('${account.id}')">
+                            <i class="fas fa-copy"></i> 复制
+                        </button>
+                        <button class="action-btn" onclick="deleteAccount('${account.id}')">
+                            <i class="fas fa-trash-alt"></i> 删除
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(accountCard);
+            });
+        }
+        
+        // 保存账户到localStorage
+        function saveAccounts() {
+            localStorage.setItem('2faAccounts', JSON.stringify(accounts));
+        }
+        
+        // 复制验证码
+        function copyToken(id) {
+            const account = accounts.find(a => a.id === id);
+            if (!account) return;
+            
+            const token = generateTOTP(account.secret);
+            navigator.clipboard.writeText(token).then(() => {
+                showNotification('验证码已复制到剪贴板！');
+            });
+        }
+        
+        // 复制JavaScript代码
+        function copyJSCode() {
+            const code = `// 在iOS快捷指令中运行此代码
+const htmlContent = \`${document.documentElement.outerHTML}\`;
+
+// 创建临时HTML文件
+const tempFile = Data.fromString(htmlContent, 'public.html');
+// 在Safari中打开
+Safari.open(tempFile);`;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                showNotification('JavaScript代码已复制到剪贴板！');
+            });
+        }
+        
+        // 复制Data URI
+        function copyDataURI() {
+            const htmlContent = document.documentElement.outerHTML;
+            const base64 = btoa(unescape(encodeURIComponent(htmlContent)));
+            const dataURI = `data:text/html;base64,${base64}`;
+            
+            navigator.clipboard.writeText(dataURI).then(() => {
+                showNotification('Data URI已复制到剪贴板！');
+            });
+        }
+        
+        // 暴露函数给全局作用域
+        window.deleteAccount = deleteAccount;
+        window.copyToken = copyToken;
+    </script>
 </body>
 </html>
