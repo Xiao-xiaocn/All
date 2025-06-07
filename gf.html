@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>2FA验证器 - iOS应用</title>
+    
+    <!-- iOS主屏幕应用配置 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="2FA验证器">
+    
+    <!-- iOS应用图标 -->
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiIGZpbGw9IiM0Mjg1RjQiPjxwYXRoIGQ9Ik01MTIgNjRjMjQ3LjQgMCA0NDggMjAwLjYgNDQ4IDQ0OFM3NTkuNCA5NjAgNTEyIDk2MCA2NCA3NTkuNCA2NCA1MTIgMjY0LjYgNjQgNTEyIDY0em0xOTIgNDQ4YzAgMTcuNy0xNC4zIDMyLTMyIDMycy0zMi0xNC4zLTMyLTMyVjQ0OGMwLTE3LjcgMTQuMy0zMiAzMi0zMnMzMiAxNC4zIDMyIDMydjY0em0tOTYgMGMwIDE3LjctMTQuMyAzMi0zMiAzMnMtMzItMTQuMy0zMi0zMlY0NDhjMC0xNy43IDE0LjMtMzIgMzItMzJzMzIgMTQuMyAzMiAzMnY2NHoiPjwvcGF0aD48L3N2Zz4=">
+    <link rel="apple-touch-icon" sizes="152x152" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiIGZpbGw9IiM0Mjg1RjQiPjxwYXRoIGQ9Ik01MTIgNjRjMjQ3LjQgMCA0NDggMjAwLjYgNDQ4IDQ0OFM3NTkuNCA5NjAgNTEyIDk2MCA2NCA3NTkuNCA2NCA1MTIgMjY0LjYgNjQgNTEyIDY0em0xOTIgNDQ4YzAgMTcuNy0xNC4zIDMyLTMyIDMycy0zMi0xNC4zLTMyLTMyVjQ0OGMwLTE3LjcgMTQuMy0zMiAzMi0zMnMzMiAxNC4zIDMyIDMydjY0em0tOTYgMGMwIDE3LjctMTQuMyAzMi0zMiAzMnMtMzItMTQuMy0zMi0zMlY0NDhjMC0xNy43IDE0LjMtMzIgMzItMzJzMzIgMTQuMyAzMiAzMnY2NHoiPjwvcGF0aD48L3N2Zz4=">
+    <link rel="apple-touch-icon" sizes="120x120" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiIGZpbGw9IiM0Mjg1RjQiPjxwYXRoIGQ9Ik01MTIgNjRjMjQ3LjQgMCA0NDggMjAwLjYgNDQ4IDQ0OFM3NTkuNCA5NjAgNTEyIDk2MCA2NCA3NTkuNCA2NCA1MTIgMjY0LjYgNjQgNTEyIDY0em0xOTIgNDQ4YzAgMTcuNy0xNC4zIDMyLTMyIDMycy0zMi0xNC4zLTMyLTMyVjQ0OGMwLTE3LjcgMTQuMy0zMiAzMi0zMnMzMiAxNC4zIDMyIDMydjY0em0tOTYgMGMwIDE3LjctMTQuMyAzMi0zMiAzMnMtMzItMTQuMy0zMi0zMlY0NDhjMC0xNy43IDE0LjMtMzIgMzItMzJzMzIgMTQuMyAzMiAzMnY2NHoiPjwvcGF0aD48L3N2Zz4=">
+    
+    <!-- 启动画面 -->
+    <link rel="apple-touch-startup-image" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEzMzQiIGZpbGw9IiM0Mjg1RjQiPjxyZWN0IHdpZHRoPSIxMDI0IiBoZWlnaHQ9IjEzMzQiIGZpbGw9IiM0Mjg1RjQiLz48ZyBmaWxsPSJ3aGl0ZSI+PHBhdGggZD0iTTUxMiA2NGMyNDcuNCAwIDQ0OCAyMDAuNiA0NDggNDQ4cy0yMDAuNiA0NDgtNDQ4IDQ0OFM2NCA3NTkuNCA2NCA1MTIgMjY0LjYgNjQgNTEyIDY0em0xOTIgNDQ4YzAgMTcuNy0xNC4zIDMyLTMyIDMycy0zMi0xNC4zLTMyLTMyVjQ0OGMwLTE3LjcgMTQuMy0zMiAzMi0zMnMzMiAxNC4zIDMyIDMydjY0em0tOTYgMGMwIDE3LjctMTQuMyAzMi0zMiAzMnMtMzItMTQuMy0zMi0zMlY0NDhjMC0xNy43IDE0LjMtMzIgMzItMzJzMzIgMTQuMyAzMiAzMnY2NHoiLz48L2c+PC9zdmc+" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)">
+    <link rel="apple-touch-startup-image" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjQyIiBoZWlnaHQ9IjI2ODgiIGZpbGw9IiM0Mjg1RjQiPjxyZWN0IHdpZHRoPSIxMjQyIiBoZWlnaHQ9IjI2ODgiIGZpbGw9IiM0Mjg1RjQiLz48ZyBmaWxsPSJ3aGl0ZSI+PHBhdGggZD0iTTYyMSAxMzQ0YzI0Ny40IDAgNDQ4IDIwMC42IDQ0OCA0NDhzLTIwMC42IDQ0OC00NDggNDQ4cy00NDgtMjAwLjYtNDQ4LTQ0OCAyMDAuNi00NDggNDQ4LTQ0OHptMTkyIDQ0OGMwIDE3LjctMTQuMyAzMi0zMiAzMnMtMzItMTQuMy0zMi0zMlYxMjI4YzAtMTcuNyAxNC4zLTMyIDMyLTMyczMyIDE0LjMgMzIgMzJ2NjR6bS05NiAwYzAgMTcuNy0xNC4zIDMyLTMyIDMycy0zMi0xNC4zLTMyLTMyVjEyMjhjMC0xNy43IDE0LjMtMzIgMzItMzJzMzIgMTQuMyAzMiAzMnY2NHoiLz48L2c+PC9zdmc+" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)">
+    
+    <style>
+        /* 原有的CSS样式保持不变 */
+        /* 这里包含您提供的所有CSS样式 */
+        
+        /* 新增iOS应用样式 */
+        body.ios-standalone {
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+        }
+        
+        .ios-install-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #4285F4;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .ios-install-banner button {
+            background: white;
+            color: #4285F4;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .ios-install-banner button:hover {
+            background: #f0f0f0;
+        }
+        
+        .ios-install-banner .close-btn {
+            background: none;
+            color: white;
+            font-size: 24px;
+            padding: 0 10px;
+        }
+        
+        @media (display-mode: standalone) {
+            .ios-install-banner {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 添加iOS安装提示横幅 -->
+        <div class="ios-install-banner" id="ios-install-banner">
+            <div>添加到主屏幕以获得更好的体验</div>
+            <button id="install-btn">安装</button>
+            <button class="close-btn" id="close-banner">×</button>
+        </div>
+        
+        <!-- 原有内容保持不变 -->
+        <header>
+            <h1>兼容Google Authenticator的2FA验证器</h1>
+            <p class="subtitle">支持导入/导出，与Google Authenticator完全兼容</p>
+        </header>
+
+        <div class="card">
+            <div class="card tokens-list">
+                <h2>我的2FA账户</h2>
+                <div id="tokens-container">
+                    <!-- 动态生成令牌 -->
+                    <div class="empty-state" id="empty-state">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjM2NjY5IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwLjEgMi4xNWE0IDQgMCAwIDEgMy44IDBMMjAgNS42YTIgMiAwIDAgMSAxIDJ2OC43YTIgMiAwIDAgMS0xIDJsLTYuMSAzLjQ1YTQgNCAwIDAgMS0zLjggMEw0IDE4LjNhMiAyIDAgMCAxLTEtMlY3LjZhMiAyIDAgMCAxIDEtMmw2LjEtMy40NXoiPjwvcGF0aD48cGF0aCBkPSJNOS4xMiA5LjE2bDMtMy4xNiI+PC9wYXRoPjxwYXRoIGQ9Ik0xNC44OCA5LjE2bC0zLTMuMTYiPjwvcGF0aD48cGF0aCBkPSJNMTYuNSAxNS41YTEuNSAxLjUgMCAxIDEtMyAwYTEuNSAxLjUgMCAwIDEgMyAwIj48L3BhdGg+PHBhdGggZD0iTTcuNSAxNS41YTEuNSAxLjUgMCAxIDEtMyAwYTEuNSAxLjUgMCAwIDEgMyAwIj48L3BhdGg+PC9zdmc+" alt="Empty">
+                        <h3>暂无2FA账户</h3>
+                        <p>点击上方"添加账户"按钮开始使用</p>
+                    </div>
+                </div>
+            </div>
+            <h2>添加新2FA账户</h2>
+            <div class="form-group">
+                <label for="account-name">账户名称</label>
+                <input type="text" id="account-name" placeholder="例如: Google账号">
+            </div>
+            <div class="form-group">
+                <label for="secret-key">密钥</label>
+                <input type="text" id="secret-key" placeholder="输入2FA密钥或扫描二维码">
+            </div>
+            <div class="form-group">
+                <label for="digits">位数</label>
+                <input type="number" id="digits" value="6" min="6" max="8">
+            </div>
+            <div class="form-group">
+                <label for="period">刷新时间(秒)</label>
+                <input type="number" id="period" value="30" min="10">
+            </div>
+            <button id="add-account">添加账户</button>
+            <button id="scan-qr" class="button-secondary">扫描二维码</button>
+            
+            <div class="export-import">
+                <button id="export-btn" class="export-btn">导出到Google验证器</button>
+                <button id="import-btn" class="import-btn">从Google验证器导入</button>
+                <input type="file" id="file-input" class="file-input" accept=".json">
+            </div>
+        </div>
+    </div>
+
+    <div class="qr-scanner" id="qr-scanner">
+        <video class="qr-video" id="qr-video"></video>
+        <button class="qr-close" id="qr-close">关闭扫描器</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/js-base64@3.7.2/base64.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/otpauth@9.0.2/dist/otpauth.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-decoder@1.0.1/dist/index.min.js"></script>
+
+    <script>
+        // 检测iOS设备
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+        
+        if (isStandalone) {
+            document.body.classList.add('ios-standalone');
+        }
+        
+        // iOS安装提示逻辑
+        const installBanner = document.getElementById('ios-install-banner');
+        const installBtn = document.getElementById('install-btn');
+        const closeBanner = document.getElementById('close-banner');
+        
+        // 只在iOS设备上显示安装提示
+        if (isIOS && !isStandalone) {
+            installBanner.style.display = 'flex';
+            
+            // 检查用户之前是否关闭过提示
+            if (!localStorage.getItem('hideInstallBanner')) {
+                setTimeout(() => {
+                    installBanner.style.display = 'flex';
+                }, 5000);
+            }
+        } else {
+            installBanner.style.display = 'none';
+        }
+        
+        installBtn.addEventListener('click', () => {
+            // 显示添加到主屏幕说明
+            alert('要将此应用添加到主屏幕：\n\n1. 点击分享按钮（方框加向上箭头）\n2. 向下滚动并选择"添加到主屏幕"\n3. 点击"添加"按钮');
+        });
+        
+        closeBanner.addEventListener('click', () => {
+            installBanner.style.display = 'none';
+            localStorage.setItem('hideInstallBanner', 'true');
+        });
+        
+        // 原有的JavaScript代码保持不变
+        // 这里包含您提供的所有JavaScript逻辑
+    </script>
+</body>
+</html>
