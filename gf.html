@@ -451,7 +451,489 @@
             installBanner.style.display = 'none';
             localStorage.setItem('hideInstallBanner', 'true');
         });
-        
+        let accounts = [];
+
+        // DOM元素
+        const accountNameInput = document.getElementById('account-name');
+        const secretKeyInput = document.getElementById('secret-key');
+        const digitsInput = document.getElementById('digits');
+        const periodInput = document.getElementById('period');
+        const addAccountBtn = document.getElementById('add-account');
+        const scanQrBtn = document.getElementById('scan-qr');
+        const tokensContainer = document.getElementById('tokens-container');
+        const emptyState = document.getElementById('empty-state');
+        const qrScanner = document.getElementById('qr-scanner');
+        const qrVideo = document.getElementById('qr-video');
+        const qrClose = document.getElementById('qr-close');
+        const exportBtn = document.getElementById('export-btn');
+        const importBtn = document.getElementById('import-btn');
+        const fileInput = document.getElementById('file-input');
+
+        // 从本地存储加载账户
+        function loadAccounts() {
+            const savedAccounts = localStorage.getItem('2faAccounts');
+            if (savedAccounts) {
+                accounts = JSON.parse(savedAccounts);
+                renderTokens();
+            }
+        }
+
+        // 保存账户到本地存储
+        function saveAccounts() {
+            localStorage.setItem('2faAccounts', JSON.stringify(accounts));
+        }
+
+        // 生成2FA代码
+        function generateToken(secret, digits = 6, period = 30) {
+            try {
+                const totp = new OTPAuth.TOTP({
+                    algorithm: 'SHA1',
+                    digits: digits,
+                    period: period,
+                    secret: OTPAuth.Secret.fromBase32(secret.replace(/\s+/g, '').toUpperCase())
+                });
+                return totp.generate();
+            } catch (e) {
+                console.error('生成令牌错误:', e);
+                return 'ERROR';
+            }
+        }
+
+        // 计算剩余时间百分比
+        function getRemainingTimePercent(period) {
+            const now = new Date();
+            const seconds = now.getSeconds();
+            return ((period - (seconds % period)) / period) * 100;
+        }
+
+        // 渲染所有令牌
+        function renderTokens() {
+            if (accounts.length === 0) {
+                emptyState.style.display = 'block';
+                tokensContainer.innerHTML = '';
+                tokensContainer.appendChild(emptyState);
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            tokensContainer.innerHTML = '';
+
+            accounts.forEach((account, index) => {
+                const token = generateToken(account.secret, account.digits, account.period);
+                const remainingPercent = getRemainingTimePercent(account.period);
+
+                const tokenElement = document.createElement('div');
+                tokenElement.className = 'token-item';
+                tokenElement.innerHTML = `
+                    <div class="token-info">
+                        <div class="token-name">${account.name}</div>
+                        <div class="token-code">${formatToken(token, account.digits)}</div>
+                        <div class="token-time">${formatTimeRemaining(account.period)}</div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: ${remainingPercent}%"></div>
+                        </div>
+                    </div>
+                    <div class="token-actions">
+                        <button class="copy-btn" data-index="${index}">复制</button>
+                        <button class="delete-btn" data-index="${index}">删除</button>
+                    </div>
+                `;
+
+                tokensContainer.appendChild(tokenElement);
+            });
+
+            // 添加事件监听器
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.target.getAttribute('data-index');
+                    const token = generateToken(accounts[index].secret, accounts[index].digits, accounts[index].period);
+                    navigator.clipboard.writeText(token);
+                    showToast('已复制到剪贴板');
+                });
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.target.getAttribute('data-index');
+                    if (confirm(`确定要删除 "${accounts[index].name}" 账户吗？`)) {
+                        accounts.splice(index, 1);
+                        saveAccounts();
+                        renderTokens();
+                        showToast('账户已删除');
+                    }
+                });
+            });
+        }
+
+        // 格式化令牌显示
+        function formatToken(token, digits) {
+            if (token === 'ERROR') return '无效密钥';
+            if (digits === 6) return `${token.substring(0, 3)} ${token.substring(3)}`;
+            if (digits === 7) return `${token.substring(0, 4)} ${token.substring(4)}`;
+            if (digits === 8) return `${token.substring(0, 4)} ${token.substring(4)}`;
+            return token;
+        }
+
+        // 格式化剩余时间
+        function formatTimeRemaining(period) {
+            const now = new Date();
+            const seconds = now.getSeconds();
+            const remaining = period - (seconds % period);
+            return `刷新时间: ${remaining}秒`;
+        }
+
+        // 显示toast提示
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.left = '50%';
+            toast.style.transform = 'translateX(-50%)';
+            toast.style.backgroundColor = 'var(--text-color)';
+            toast.style.color = 'white';
+            toast.style.padding = '10px 20px';
+            toast.style.borderRadius = '5px';
+            toast.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+            toast.style.zIndex = '1000';
+            toast.style.animation = 'fadeInOut 3s forwards';
+            toast.textContent = message;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 3000);
+        }
+
+        // 添加账户
+        function addAccount() {
+            const name = accountNameInput.value.trim();
+            let secret = secretKeyInput.value.trim();
+            const digits = parseInt(digitsInput.value);
+            const period = parseInt(periodInput.value);
+
+            if (!name || !secret) {
+                showToast('请输入账户名称和密钥');
+                return;
+            }
+
+            // 尝试从otpauth URL中提取密钥
+            if (secret.startsWith('otpauth://')) {
+                try {
+                    const url = new URL(secret);
+                    secret = url.searchParams.get('secret');
+                    const urlName = url.pathname.split('/').pop();
+                    const issuer = url.searchParams.get('issuer');
+                    
+                    if (!secret) {
+                        showToast('无法从URL中提取密钥');
+                        return;
+                    }
+                    
+                    // 如果URL中有issuer参数，优先使用它作为账户名
+                    if (issuer && !name) {
+                        accountNameInput.value = issuer;
+                    } else if (urlName && !name) {
+                        accountNameInput.value = decodeURIComponent(urlName).replace(/^.*?:/, '');
+                    }
+                } catch (e) {
+                    console.error('解析otpauth URL错误:', e);
+                    showToast('无效的otpauth URL');
+                    return;
+                }
+            }
+
+            // 检查密钥是否有效
+            try {
+                const testToken = generateToken(secret, digits, period);
+                if (testToken === 'ERROR') {
+                    showToast('无效的密钥');
+                    return;
+                }
+            } catch (e) {
+                showToast('无效的密钥');
+                return;
+            }
+
+            accounts.push({
+                name,
+                secret,
+                digits,
+                period
+            });
+
+            saveAccounts();
+            renderTokens();
+
+            // 清空输入
+            accountNameInput.value = '';
+            secretKeyInput.value = '';
+
+            showToast('账户已添加');
+        }
+
+        // 初始化QR扫描器
+        async function initQrScanner() {
+            qrScanner.classList.add('active');
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } 
+                });
+                qrVideo.srcObject = stream;
+                qrVideo.play();
+                
+                const qrDecoder = new QrcodeDecoder();
+                let scanning = true;
+                
+                async function scanFrame() {
+                    if (!scanning) return;
+                    
+                    try {
+                        const result = await qrDecoder.decodeFromVideo(qrVideo);
+                        if (result) {
+                            handleQrResult(result.data);
+                            scanning = false;
+                            closeQrScanner();
+                        }
+                    } catch (e) {
+                        console.error('QR解码错误:', e);
+                    }
+                    
+                    if (scanning) {
+                        requestAnimationFrame(scanFrame);
+                    }
+                }
+                
+                scanFrame();
+            } catch (e) {
+                console.error('摄像头访问错误:', e);
+                showToast('无法访问摄像头');
+                closeQrScanner();
+            }
+        }
+
+        // 处理QR扫描结果
+        function handleQrResult(data) {
+            if (data.startsWith('otpauth://')) {
+                try {
+                    const url = new URL(data);
+                    const secret = url.searchParams.get('secret');
+                    const urlName = url.pathname.split('/').pop();
+                    const issuer = url.searchParams.get('issuer');
+                    
+                    if (secret) {
+                        // 优先使用issuer作为账户名，其次是URL中的名称
+                        if (issuer) {
+                            accountNameInput.value = issuer;
+                        } else if (urlName) {
+                            accountNameInput.value = decodeURIComponent(urlName).replace(/^.*?:/, '');
+                        }
+                        
+                        secretKeyInput.value = data;
+                        showToast('QR码已扫描');
+                    } else {
+                        showToast('QR码中未找到密钥');
+                    }
+                } catch (e) {
+                    console.error('解析QR码错误:', e);
+                    showToast('无效的QR码');
+                }
+            } else {
+                showToast('不是有效的2FA QR码');
+            }
+        }
+
+        // 关闭QR扫描器
+        function closeQrScanner() {
+            qrScanner.classList.remove('active');
+            if (qrVideo.srcObject) {
+                qrVideo.srcObject.getTracks().forEach(track => track.stop());
+                qrVideo.srcObject = null;
+            }
+        }
+
+        // 更新所有令牌和进度条
+        function updateTokens() {
+            const now = new Date();
+            const seconds = now.getSeconds();
+            
+            document.querySelectorAll('.token-item').forEach((item, index) => {
+                const account = accounts[index];
+                const token = generateToken(account.secret, account.digits, account.period);
+                const remaining = account.period - (seconds % account.period);
+                const remainingPercent = (remaining / account.period) * 100;
+                
+                const codeElement = item.querySelector('.token-code');
+                const timeElement = item.querySelector('.token-time');
+                const progressElement = item.querySelector('.progress');
+                
+                if (codeElement) codeElement.textContent = formatToken(token, account.digits);
+                if (timeElement) timeElement.textContent = formatTimeRemaining(account.period);
+                if (progressElement) progressElement.style.width = `${remainingPercent}%`;
+                
+                // 当剩余时间少于5秒时添加闪烁效果
+                if (remaining <= 5) {
+                    codeElement.style.animation = 'blink 1s infinite';
+                } else {
+                    codeElement.style.animation = '';
+                }
+            });
+        }
+
+        // 导出为Google Authenticator兼容格式
+        function exportToGoogleAuth() {
+            if (accounts.length === 0) {
+                showToast('没有账户可导出');
+                return;
+            }
+
+            const exportData = {
+                version: 1,
+                accounts: accounts.map(account => ({
+                    name: account.name,
+                    secret: account.secret,
+                    digits: account.digits,
+                    period: account.period,
+                    type: 'totp'
+                }))
+            };
+
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'google-authenticator-backup.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('导出成功');
+        }
+
+        // 从Google Authenticator导入
+        function importFromGoogleAuth() {
+            fileInput.click();
+        }
+
+        // 处理文件导入
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (!data.accounts || !Array.isArray(data.accounts)) {
+                        showToast('无效的导入文件');
+                        return;
+                    }
+                    
+                    // 验证每个账户
+                    const validAccounts = data.accounts.filter(account => {
+                        return account.secret && account.name && 
+                               (account.digits === 6 || account.digits === 7 || account.digits === 8) &&
+                               (account.period === 30 || account.period === 60);
+                    });
+                    
+                    if (validAccounts.length === 0) {
+                        showToast('文件中没有有效的账户');
+                        return;
+                    }
+                    
+                    // 添加新账户
+                    validAccounts.forEach(account => {
+                        if (!accounts.some(a => a.secret === account.secret && a.name === account.name)) {
+                            accounts.push({
+                                name: account.name,
+                                secret: account.secret,
+                                digits: account.digits || 6,
+                                period: account.period || 30
+                            });
+                        }
+                    });
+                    
+                    saveAccounts();
+                    renderTokens();
+                    showToast(`成功导入 ${validAccounts.length} 个账户`);
+                    
+                } catch (e) {
+                    console.error('导入错误:', e);
+                    showToast('导入失败: 文件格式不正确');
+                }
+            };
+            reader.readAsText(file);
+            
+            // 重置文件输入，以便可以重复导入同一个文件
+            event.target.value = '';
+        }
+
+        // 生成Google Authenticator迁移URI (用于测试)
+        function generateMigrationURI() {
+            if (accounts.length === 0) {
+                showToast('没有账户可迁移');
+                return;
+            }
+
+            const otpParams = accounts.map(account => {
+                return `otpauth-migration://offline?data=${encodeURIComponent(
+                    JSON.stringify([
+                        [
+                            null,
+                            null,
+                            null,
+                            account.name,
+                            account.secret,
+                            "TOTP",
+                            null,
+                            account.digits || 6,
+                            account.period || 30,
+                            null
+                        ]
+                    ])
+                )}`;
+            }).join('\n\n');
+
+            navigator.clipboard.writeText(otpParams);
+            showToast('迁移URI已复制到剪贴板');
+        }
+
+        // 事件监听器
+        addAccountBtn.addEventListener('click', addAccount);
+        scanQrBtn.addEventListener('click', initQrScanner);
+        qrClose.addEventListener('click', closeQrScanner);
+        exportBtn.addEventListener('click', exportToGoogleAuth);
+        importBtn.addEventListener('click', importFromGoogleAuth);
+        fileInput.addEventListener('change', handleFileImport);
+
+        // 每秒钟更新一次令牌和进度条
+        setInterval(updateTokens, 1000);
+
+        // 初始加载
+        loadAccounts();
+
+        // 添加CSS动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInOut {
+                0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+                10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+                90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+                100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            }
+            
+            @keyframes blink {
+                0% { opacity: 1; }
+                50% { opacity: 0.5; }
+                100% { opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
         // 原有的JavaScript代码保持不变
         // 这里包含您提供的所有JavaScript逻辑
     </script>
