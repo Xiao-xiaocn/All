@@ -22,7 +22,282 @@
     <style>
         /* 原有的CSS样式保持不变 */
         /* 这里包含您提供的所有CSS样式 */
-        
+        :root {
+            --primary-color: #4285F4; /* Google蓝色 */
+            --secondary-color: #3367D6;
+            --background-color: #f8f9fa;
+            --card-color: #ffffff;
+            --text-color: #202124; /* Google文本色 */
+            --border-color: #dadce0; /* Google边框色 */
+            --success-color: #34A853; /* Google绿色 */
+            --error-color: #EA4335; /* Google红色 */
+            --warning-color: #FBBC05; /* Google黄色 */
+        }
+
+        body {
+            font-family: 'Roboto', 'Noto Sans SC', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .subtitle {
+            color: #5f6368; /* Google次级文本色 */
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 8px;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 2px 6px 2px rgba(60,64,67,0.15);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #3c4043;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 90%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            margin-right: 10%;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(66,133,244,0.2);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            min-width: 88px;
+            text-transform: uppercase;
+            box-shadow: 0 1px 2px 0 rgba(66,133,244,0.3), 0 1px 3px 1px rgba(66,133,244,0.15);
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+            box-shadow: 0 1px 3px 0 rgba(66,133,244,0.3), 0 4px 8px 3px rgba(66,133,244,0.15);
+        }
+
+        .button-secondary {
+            background-color: #5f6368;
+            box-shadow: 0 1px 2px 0 rgba(95,99,104,0.3), 0 1px 3px 1px rgba(95,99,104,0.15);
+        }
+
+        .button-secondary:hover {
+            background-color: #3c4043;
+            box-shadow: 0 1px 3px 0 rgba(95,99,104,0.3), 0 4px 8px 3px rgba(95,99,104,0.15);
+        }
+
+        .button-success {
+            background-color: var(--success-color);
+            box-shadow: 0 1px 2px 0 rgba(52,168,83,0.3), 0 1px 3px 1px rgba(52,168,83,0.15);
+        }
+
+        .button-success:hover {
+            background-color: #2d9248;
+            box-shadow: 0 1px 3px 0 rgba(52,168,83,0.3), 0 4px 8px 3px rgba(52,168,83,0.15);
+        }
+
+        .tokens-list {
+            margin-top: 24px;
+        }
+
+        .token-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+
+        .token-item:hover {
+            background-color: rgba(66,133,244,0.04);
+        }
+
+        .token-info {
+            flex-grow: 1;
+        }
+
+        .token-name {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #202124;
+        }
+
+        .token-code {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 24px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            color: var(--primary-color);
+        }
+
+        .token-time {
+            font-size: 13px;
+            color: #5f6368;
+        }
+
+        .token-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .copy-btn {
+            background-color: #5f6368;
+            padding: 8px 12px;
+            font-size: 13px;
+            min-width: auto;
+        }
+
+        .delete-btn {
+            background-color: var(--error-color);
+            padding: 8px 12px;
+            font-size: 13px;
+            min-width: auto;
+            box-shadow: 0 1px 2px 0 rgba(234,67,53,0.3), 0 1px 3px 1px rgba(234,67,53,0.15);
+        }
+
+        .delete-btn:hover {
+            background-color: #d33426;
+            box-shadow: 0 1px 3px 0 rgba(234,67,53,0.3), 0 4px 8px 3px rgba(234,67,53,0.15);
+        }
+
+        .progress-bar {
+            height: 4px;
+            background-color: #e8f0fe;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 100%;
+            transition: width 1s linear;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #5f6368;
+        }
+
+        .empty-state img {
+            max-width: 150px;
+            opacity: 0.7;
+            margin-bottom: 20px;
+        }
+
+        .qr-scanner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-scanner.active {
+            display: flex;
+        }
+
+        .qr-video {
+            width: 80%;
+            max-width: 500px;
+            border: 3px solid white;
+            border-radius: 8px;
+        }
+
+        .qr-close {
+            margin-top: 20px;
+            background-color: var(--error-color);
+        }
+
+        .export-import {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .export-btn {
+            background-color: var(--success-color);
+        }
+
+        .import-btn {
+            background-color: var(--warning-color);
+            color: rgba(0,0,0,0.87);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .token-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .token-actions {
+                margin-top: 12px;
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .export-import {
+                flex-direction: column;
+            }
+        }
         /* 新增iOS应用样式 */
         body.ios-standalone {
             padding-top: env(safe-area-inset-top);
