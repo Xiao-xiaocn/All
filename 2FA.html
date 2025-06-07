@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兼容Google Authenticator的2FA验证器</title>
+    <style>
+        :root {
+            --primary-color: #4285F4; /* Google蓝色 */
+            --secondary-color: #3367D6;
+            --background-color: #f8f9fa;
+            --card-color: #ffffff;
+            --text-color: #202124; /* Google文本色 */
+            --border-color: #dadce0; /* Google边框色 */
+            --success-color: #34A853; /* Google绿色 */
+            --error-color: #EA4335; /* Google红色 */
+            --warning-color: #FBBC05; /* Google黄色 */
+        }
+
+        body {
+            font-family: 'Roboto', 'Noto Sans SC', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .subtitle {
+            color: #5f6368; /* Google次级文本色 */
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background-color: var(--card-color);
+            border-radius: 8px;
+            box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 2px 6px 2px rgba(60,64,67,0.15);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #3c4043;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(66,133,244,0.2);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            min-width: 88px;
+            text-transform: uppercase;
+            box-shadow: 0 1px 2px 0 rgba(66,133,244,0.3), 0 1px 3px 1px rgba(66,133,244,0.15);
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+            box-shadow: 0 1px 3px 0 rgba(66,133,244,0.3), 0 4px 8px 3px rgba(66,133,244,0.15);
+        }
+
+        .button-secondary {
+            background-color: #5f6368;
+            box-shadow: 0 1px 2px 0 rgba(95,99,104,0.3), 0 1px 3px 1px rgba(95,99,104,0.15);
+        }
+
+        .button-secondary:hover {
+            background-color: #3c4043;
+            box-shadow: 0 1px 3px 0 rgba(95,99,104,0.3), 0 4px 8px 3px rgba(95,99,104,0.15);
+        }
+
+        .button-success {
+            background-color: var(--success-color);
+            box-shadow: 0 1px 2px 0 rgba(52,168,83,0.3), 0 1px 3px 1px rgba(52,168,83,0.15);
+        }
+
+        .button-success:hover {
+            background-color: #2d9248;
+            box-shadow: 0 1px 3px 0 rgba(52,168,83,0.3), 0 4px 8px 3px rgba(52,168,83,0.15);
+        }
+
+        .tokens-list {
+            margin-top: 24px;
+        }
+
+        .token-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+
+        .token-item:hover {
+            background-color: rgba(66,133,244,0.04);
+        }
+
+        .token-info {
+            flex-grow: 1;
+        }
+
+        .token-name {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #202124;
+        }
+
+        .token-code {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 24px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            color: var(--primary-color);
+        }
+
+        .token-time {
+            font-size: 13px;
+            color: #5f6368;
+        }
+
+        .token-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .copy-btn {
+            background-color: #5f6368;
+            padding: 8px 12px;
+            font-size: 13px;
+            min-width: auto;
+        }
+
+        .delete-btn {
+            background-color: var(--error-color);
+            padding: 8px 12px;
+            font-size: 13px;
+            min-width: auto;
+            box-shadow: 0 1px 2px 0 rgba(234,67,53,0.3), 0 1px 3px 1px rgba(234,67,53,0.15);
+        }
+
+        .delete-btn:hover {
+            background-color: #d33426;
+            box-shadow: 0 1px 3px 0 rgba(234,67,53,0.3), 0 4px 8px 3px rgba(234,67,53,0.15);
+        }
+
+        .progress-bar {
+            height: 4px;
+            background-color: #e8f0fe;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 100%;
+            transition: width 1s linear;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #5f6368;
+        }
+
+        .empty-state img {
+            max-width: 150px;
+            opacity: 0.7;
+            margin-bottom: 20px;
+        }
+
+        .qr-scanner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-scanner.active {
+            display: flex;
+        }
+
+        .qr-video {
+            width: 80%;
+            max-width: 500px;
+            border: 3px solid white;
+            border-radius: 8px;
+        }
+
+        .qr-close {
+            margin-top: 20px;
+            background-color: var(--error-color);
+        }
+
+        .export-import {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .export-btn {
+            background-color: var(--success-color);
+        }
+
+        .import-btn {
+            background-color: var(--warning-color);
+            color: rgba(0,0,0,0.87);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .token-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .token-actions {
+                margin-top: 12px;
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .export-import {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Roboto+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>兼容Google Authenticator的2FA验证器</h1>
+            <p class="subtitle">支持导入/导出，与Google Authenticator完全兼容</p>
+        </header>
+
+        <div class="card">
+            <h2>添加新2FA账户</h2>
+            <div class="form-group">
+                <label for="account-name">账户名称</label>
+                <input type="text" id="account-name" placeholder="例如: Google账号">
+            </div>
+            <div class="form-group">
+                <label for="secret-key">密钥</label>
+                <input type="text" id="secret-key" placeholder="输入2FA密钥或扫描二维码">
+            </div>
+            <div class="form-group">
+                <label for="digits">位数</label>
+                <input type="number" id="digits" value="6" min="6" max="8">
+            </div>
+            <div class="form-group">
+                <label for="period">刷新时间(秒)</label>
+                <input type="number" id="period" value="30" min="10">
+            </div>
+            <button id="add-account">添加账户</button>
+            <button id="scan-qr" class="button-secondary">扫描二维码</button>
+            
+            <div class="export-import">
+                <button id="export-btn" class="export-btn">导出到Google验证器</button>
+                <button id="import-btn" class="import-btn">从Google验证器导入</button>
+                <input type="file" id="file-input" class="file-input" accept=".json">
+            </div>
+        </div>
+
+        <div class="card tokens-list">
+            <h2>我的2FA账户</h2>
+            <div id="tokens-container">
+                <!-- 令牌将在这里动态生成 -->
+                <div class="empty-state" id="empty-state">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjM2NjY5IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwLjEgMi4xNWE0IDQgMCAwIDEgMy44IDBMMjAgNS42YTIgMiAwIDAgMSAxIDJ2OC43YTIgMiAwIDAgMS0xIDJsLTYuMSAzLjQ1YTQgNCAwIDAgMS0zLjggMEw0IDE4LjNhMiAyIDAgMCAxLTEtMlY3LjZhMiAyIDAgMCAxIDEtMmw2LjEtMy40NXoiPjwvcGF0aD48cGF0aCBkPSJNOS4xMiA5LjE2bDMtMy4xNiI+PC9wYXRoPjxwYXRoIGQ9IjE0Ljg4IDkuMTZsLTMtMy4xNiI+PC9wYXRoPjxwYXRoIGQ9Ik0xNi41IDE1LjVhMS41IDEuNSAwIDEgMS0zIDBhMS41IDEuNSAwIDAgMSAzIDAiPjwvcGF0aD48cGF0aCBkPSJNNy41IDE1LjVhMS41IDEuNSAwIDEgMS0zIDBhMS41IDEuNSAwIDAgMSAzIDAiPjwvcGF0aD48L3N2Zz4=" alt="Empty">
+                    <h3>暂无2FA账户</h3>
+                    <p>点击上方"添加账户"按钮开始使用</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="qr-scanner" id="qr-scanner">
+        <video class="qr-video" id="qr-video"></video>
+        <button class="qr-close" id="qr-close">关闭扫描器</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/js-base64@3.7.2/base64.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/otpauth@9.0.2/dist/otpauth.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-decoder@1.0.1/dist/index.min.js"></script>
+
+    <script>
+        // 存储2FA账户的数组
+        let accounts = [];
+
+        // DOM元素
+        const accountNameInput = document.getElementById('account-name');
+        const secretKeyInput = document.getElementById('secret-key');
+        const digitsInput = document.getElementById('digits');
+        const periodInput = document.getElementById('period');
+        const addAccountBtn = document.getElementById('add-account');
+        const scanQrBtn = document.getElementById('scan-qr');
+        const tokensContainer = document.getElementById('tokens-container');
+        const emptyState = document.getElementById('empty-state');
+        const qrScanner = document.getElementById('qr-scanner');
+        const qrVideo = document.getElementById('qr-video');
+        const qrClose = document.getElementById('qr-close');
+        const exportBtn = document.getElementById('export-btn');
+        const importBtn = document.getElementById('import-btn');
+        const fileInput = document.getElementById('file-input');
+
+        // 从本地存储加载账户
+        function loadAccounts() {
+            const savedAccounts = localStorage.getItem('2faAccounts');
+            if (savedAccounts) {
+                accounts = JSON.parse(savedAccounts);
+                renderTokens();
+            }
+        }
+
+        // 保存账户到本地存储
+        function saveAccounts() {
+            localStorage.setItem('2faAccounts', JSON.stringify(accounts));
+        }
+
+        // 生成2FA代码
+        function generateToken(secret, digits = 6, period = 30) {
+            try {
+                const totp = new OTPAuth.TOTP({
+                    algorithm: 'SHA1',
+                    digits: digits,
+                    period: period,
+                    secret: OTPAuth.Secret.fromBase32(secret.replace(/\s+/g, '').toUpperCase())
+                });
+                return totp.generate();
+            } catch (e) {
+                console.error('生成令牌错误:', e);
+                return 'ERROR';
+            }
+        }
+
+        // 计算剩余时间百分比
+        function getRemainingTimePercent(period) {
+            const now = new Date();
+            const seconds = now.getSeconds();
+            return ((period - (seconds % period)) / period) * 100;
+        }
+
+        // 渲染所有令牌
+        function renderTokens() {
+            if (accounts.length === 0) {
+                emptyState.style.display = 'block';
+                tokensContainer.innerHTML = '';
+                tokensContainer.appendChild(emptyState);
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            tokensContainer.innerHTML = '';
+
+            accounts.forEach((account, index) => {
+                const token = generateToken(account.secret, account.digits, account.period);
+                const remainingPercent = getRemainingTimePercent(account.period);
+
+                const tokenElement = document.createElement('div');
+                tokenElement.className = 'token-item';
+                tokenElement.innerHTML = `
+                    <div class="token-info">
+                        <div class="token-name">${account.name}</div>
+                        <div class="token-code">${formatToken(token, account.digits)}</div>
+                        <div class="token-time">${formatTimeRemaining(account.period)}</div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: ${remainingPercent}%"></div>
+                        </div>
+                    </div>
+                    <div class="token-actions">
+                        <button class="copy-btn" data-index="${index}">复制</button>
+                        <button class="delete-btn" data-index="${index}">删除</button>
+                    </div>
+                `;
+
+                tokensContainer.appendChild(tokenElement);
+            });
+
+            // 添加事件监听器
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.target.getAttribute('data-index');
+                    const token = generateToken(accounts[index].secret, accounts[index].digits, accounts[index].period);
+                    navigator.clipboard.writeText(token);
+                    showToast('已复制到剪贴板');
+                });
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.target.getAttribute('data-index');
+                    if (confirm(`确定要删除 "${accounts[index].name}" 账户吗？`)) {
+                        accounts.splice(index, 1);
+                        saveAccounts();
+                        renderTokens();
+                        showToast('账户已删除');
+                    }
+                });
+            });
+        }
+
+        // 格式化令牌显示
+        function formatToken(token, digits) {
+            if (token === 'ERROR') return '无效密钥';
+            if (digits === 6) return `${token.substring(0, 3)} ${token.substring(3)}`;
+            if (digits === 7) return `${token.substring(0, 4)} ${token.substring(4)}`;
+            if (digits === 8) return `${token.substring(0, 4)} ${token.substring(4)}`;
+            return token;
+        }
+
+        // 格式化剩余时间
+        function formatTimeRemaining(period) {
+            const now = new Date();
+            const seconds = now.getSeconds();
+            const remaining = period - (seconds % period);
+            return `刷新时间: ${remaining}秒`;
+        }
+
+        // 显示toast提示
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.left = '50%';
+            toast.style.transform = 'translateX(-50%)';
+            toast.style.backgroundColor = 'var(--text-color)';
+            toast.style.color = 'white';
+            toast.style.padding = '10px 20px';
+            toast.style.borderRadius = '5px';
+            toast.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+            toast.style.zIndex = '1000';
+            toast.style.animation = 'fadeInOut 3s forwards';
+            toast.textContent = message;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 3000);
+        }
+
+        // 添加账户
+        function addAccount() {
+            const name = accountNameInput.value.trim();
+            let secret = secretKeyInput.value.trim();
+            const digits = parseInt(digitsInput.value);
+            const period = parseInt(periodInput.value);
+
+            if (!name || !secret) {
+                showToast('请输入账户名称和密钥');
+                return;
+            }
+
+            // 尝试从otpauth URL中提取密钥
+            if (secret.startsWith('otpauth://')) {
+                try {
+                    const url = new URL(secret);
+                    secret = url.searchParams.get('secret');
+                    const urlName = url.pathname.split('/').pop();
+                    const issuer = url.searchParams.get('issuer');
+                    
+                    if (!secret) {
+                        showToast('无法从URL中提取密钥');
+                        return;
+                    }
+                    
+                    // 如果URL中有issuer参数，优先使用它作为账户名
+                    if (issuer && !name) {
+                        accountNameInput.value = issuer;
+                    } else if (urlName && !name) {
+                        accountNameInput.value = decodeURIComponent(urlName).replace(/^.*?:/, '');
+                    }
+                } catch (e) {
+                    console.error('解析otpauth URL错误:', e);
+                    showToast('无效的otpauth URL');
+                    return;
+                }
+            }
+
+            // 检查密钥是否有效
+            try {
+                const testToken = generateToken(secret, digits, period);
+                if (testToken === 'ERROR') {
+                    showToast('无效的密钥');
+                    return;
+                }
+            } catch (e) {
+                showToast('无效的密钥');
+                return;
+            }
+
+            accounts.push({
+                name,
+                secret,
+                digits,
+                period
+            });
+
+            saveAccounts();
+            renderTokens();
+
+            // 清空输入
+            accountNameInput.value = '';
+            secretKeyInput.value = '';
+
+            showToast('账户已添加');
+        }
+
+        // 初始化QR扫描器
+        async function initQrScanner() {
+            qrScanner.classList.add('active');
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } 
+                });
+                qrVideo.srcObject = stream;
+                qrVideo.play();
+                
+                const qrDecoder = new QrcodeDecoder();
+                let scanning = true;
+                
+                async function scanFrame() {
+                    if (!scanning) return;
+                    
+                    try {
+                        const result = await qrDecoder.decodeFromVideo(qrVideo);
+                        if (result) {
+                            handleQrResult(result.data);
+                            scanning = false;
+                            closeQrScanner();
+                        }
+                    } catch (e) {
+                        console.error('QR解码错误:', e);
+                    }
+                    
+                    if (scanning) {
+                        requestAnimationFrame(scanFrame);
+                    }
+                }
+                
+                scanFrame();
+            } catch (e) {
+                console.error('摄像头访问错误:', e);
+                showToast('无法访问摄像头');
+                closeQrScanner();
+            }
+        }
+
+        // 处理QR扫描结果
+        function handleQrResult(data) {
+            if (data.startsWith('otpauth://')) {
+                try {
+                    const url = new URL(data);
+                    const secret = url.searchParams.get('secret');
+                    const urlName = url.pathname.split('/').pop();
+                    const issuer = url.searchParams.get('issuer');
+                    
+                    if (secret) {
+                        // 优先使用issuer作为账户名，其次是URL中的名称
+                        if (issuer) {
+                            accountNameInput.value = issuer;
+                        } else if (urlName) {
+                            accountNameInput.value = decodeURIComponent(urlName).replace(/^.*?:/, '');
+                        }
+                        
+                        secretKeyInput.value = data;
+                        showToast('QR码已扫描');
+                    } else {
+                        showToast('QR码中未找到密钥');
+                    }
+                } catch (e) {
+                    console.error('解析QR码错误:', e);
+                    showToast('无效的QR码');
+                }
+            } else {
+                showToast('不是有效的2FA QR码');
+            }
+        }
+
+        // 关闭QR扫描器
+        function closeQrScanner() {
+            qrScanner.classList.remove('active');
+            if (qrVideo.srcObject) {
+                qrVideo.srcObject.getTracks().forEach(track => track.stop());
+                qrVideo.srcObject = null;
+            }
+        }
+
+        // 更新所有令牌和进度条
+        function updateTokens() {
+            const now = new Date();
+            const seconds = now.getSeconds();
+            
+            document.querySelectorAll('.token-item').forEach((item, index) => {
+                const account = accounts[index];
+                const token = generateToken(account.secret, account.digits, account.period);
+                const remaining = account.period - (seconds % account.period);
+                const remainingPercent = (remaining / account.period) * 100;
+                
+                const codeElement = item.querySelector('.token-code');
+                const timeElement = item.querySelector('.token-time');
+                const progressElement = item.querySelector('.progress');
+                
+                if (codeElement) codeElement.textContent = formatToken(token, account.digits);
+                if (timeElement) timeElement.textContent = formatTimeRemaining(account.period);
+                if (progressElement) progressElement.style.width = `${remainingPercent}%`;
+                
+                // 当剩余时间少于5秒时添加闪烁效果
+                if (remaining <= 5) {
+                    codeElement.style.animation = 'blink 1s infinite';
+                } else {
+                    codeElement.style.animation = '';
+                }
+            });
+        }
+
+        // 导出为Google Authenticator兼容格式
+        function exportToGoogleAuth() {
+            if (accounts.length === 0) {
+                showToast('没有账户可导出');
+                return;
+            }
+
+            const exportData = {
+                version: 1,
+                accounts: accounts.map(account => ({
+                    name: account.name,
+                    secret: account.secret,
+                    digits: account.digits,
+                    period: account.period,
+                    type: 'totp'
+                }))
+            };
+
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'google-authenticator-backup.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('导出成功');
+        }
+
+        // 从Google Authenticator导入
+        function importFromGoogleAuth() {
+            fileInput.click();
+        }
+
+        // 处理文件导入
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (!data.accounts || !Array.isArray(data.accounts)) {
+                        showToast('无效的导入文件');
+                        return;
+                    }
+                    
+                    // 验证每个账户
+                    const validAccounts = data.accounts.filter(account => {
+                        return account.secret && account.name && 
+                               (account.digits === 6 || account.digits === 7 || account.digits === 8) &&
+                               (account.period === 30 || account.period === 60);
+                    });
+                    
+                    if (validAccounts.length === 0) {
+                        showToast('文件中没有有效的账户');
+                        return;
+                    }
+                    
+                    // 添加新账户
+                    validAccounts.forEach(account => {
+                        if (!accounts.some(a => a.secret === account.secret && a.name === account.name)) {
+                            accounts.push({
+                                name: account.name,
+                                secret: account.secret,
+                                digits: account.digits || 6,
+                                period: account.period || 30
+                            });
+                        }
+                    });
+                    
+                    saveAccounts();
+                    renderTokens();
+                    showToast(`成功导入 ${validAccounts.length} 个账户`);
+                    
+                } catch (e) {
+                    console.error('导入错误:', e);
+                    showToast('导入失败: 文件格式不正确');
+                }
+            };
+            reader.readAsText(file);
+            
+            // 重置文件输入，以便可以重复导入同一个文件
+            event.target.value = '';
+        }
+
+        // 生成Google Authenticator迁移URI (用于测试)
+        function generateMigrationURI() {
+            if (accounts.length === 0) {
+                showToast('没有账户可迁移');
+                return;
+            }
+
+            const otpParams = accounts.map(account => {
+                return `otpauth-migration://offline?data=${encodeURIComponent(
+                    JSON.stringify([
+                        [
+                            null,
+                            null,
+                            null,
+                            account.name,
+                            account.secret,
+                            "TOTP",
+                            null,
+                            account.digits || 6,
+                            account.period || 30,
+                            null
+                        ]
+                    ])
+                )}`;
+            }).join('\n\n');
+
+            navigator.clipboard.writeText(otpParams);
+            showToast('迁移URI已复制到剪贴板');
+        }
+
+        // 事件监听器
+        addAccountBtn.addEventListener('click', addAccount);
+        scanQrBtn.addEventListener('click', initQrScanner);
+        qrClose.addEventListener('click', closeQrScanner);
+        exportBtn.addEventListener('click', exportToGoogleAuth);
+        importBtn.addEventListener('click', importFromGoogleAuth);
+        fileInput.addEventListener('change', handleFileImport);
+
+        // 每秒钟更新一次令牌和进度条
+        setInterval(updateTokens, 1000);
+
+        // 初始加载
+        loadAccounts();
+
+        // 添加CSS动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInOut {
+                0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+                10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+                90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+                100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            }
+            
+            @keyframes blink {
+                0% { opacity: 1; }
+                50% { opacity: 0.5; }
+                100% { opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
