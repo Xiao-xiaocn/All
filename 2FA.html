@@ -74,6 +74,7 @@
             border-radius: 4px;
             font-size: 14px;
             transition: border-color 0.3s;
+            margin - right: 10%;
         }
 
         input[type="text"]:focus,
@@ -291,6 +292,17 @@
         </header>
 
         <div class="card">
+            <div class="card tokens-list">
+            <h2>我的2FA账户</h2>
+            <div id="tokens-container">
+                <!-- 令牌将在这里动态生成 -->
+                <div class="empty-state" id="empty-state">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjM2NjY5IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwLjEgMi4xNWE0IDQgMCAwIDEgMy44IDBMMjAgNS42YTIgMiAwIDAgMSAxIDJ2OC43YTIgMiAwIDAgMS0xIDJsLTYuMSAzLjQ1YTQgNCAwIDAgMS0zLjggMEw0IDE4LjNhMiAyIDAgMCAxLTEtMlY3LjZhMiAyIDAgMCAxIDEtMmw2LjEtMy40NXoiPjwvcGF0aD48cGF0aCBkPSJNOS4xMiA5LjE2bDMtMy4xNiI+PC9wYXRoPjxwYXRoIGQ9IjE0Ljg4IDkuMTZsLTMtMy4xNiI+PC9wYXRoPjxwYXRoIGQ9Ik0xNi41IDE1LjVhMS41IDEuNSAwIDEgMS0zIDBhMS41IDEuNSAwIDAgMSAzIDAiPjwvcGF0aD48cGF0aCBkPSJNNy41IDE1LjVhMS41IDEuNSAwIDEgMS0zIDBhMS41IDEuNSAwIDAgMSAzIDAiPjwvcGF0aD48L3N2Zz4=" alt="Empty">
+                    <h3>暂无2FA账户</h3>
+                    <p>点击上方"添加账户"按钮开始使用</p>
+                </div>
+            </div>
+            </div>
             <h2>添加新2FA账户</h2>
             <div class="form-group">
                 <label for="account-name">账户名称</label>
@@ -315,18 +327,6 @@
                 <button id="export-btn" class="export-btn">导出到Google验证器</button>
                 <button id="import-btn" class="import-btn">从Google验证器导入</button>
                 <input type="file" id="file-input" class="file-input" accept=".json">
-            </div>
-        </div>
-
-        <div class="card tokens-list">
-            <h2>我的2FA账户</h2>
-            <div id="tokens-container">
-                <!-- 令牌将在这里动态生成 -->
-                <div class="empty-state" id="empty-state">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNjM2NjY5IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTEwLjEgMi4xNWE0IDQgMCAwIDEgMy44IDBMMjAgNS42YTIgMiAwIDAgMSAxIDJ2OC43YTIgMiAwIDAgMS0xIDJsLTYuMSAzLjQ1YTQgNCAwIDAgMS0zLjggMEw0IDE4LjNhMiAyIDAgMCAxLTEtMlY3LjZhMiAyIDAgMCAxIDEtMmw2LjEtMy40NXoiPjwvcGF0aD48cGF0aCBkPSJNOS4xMiA5LjE2bDMtMy4xNiI+PC9wYXRoPjxwYXRoIGQ9IjE0Ljg4IDkuMTZsLTMtMy4xNiI+PC9wYXRoPjxwYXRoIGQ9Ik0xNi41IDE1LjVhMS41IDEuNSAwIDEgMS0zIDBhMS41IDEuNSAwIDAgMSAzIDAiPjwvcGF0aD48cGF0aCBkPSJNNy41IDE1LjVhMS41IDEuNSAwIDEgMS0zIDBhMS41IDEuNSAwIDAgMSAzIDAiPjwvcGF0aD48L3N2Zz4=" alt="Empty">
-                    <h3>暂无2FA账户</h3>
-                    <p>点击上方"添加账户"按钮开始使用</p>
-                </div>
             </div>
         </div>
     </div>
