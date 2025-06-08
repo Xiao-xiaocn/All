@@ -305,61 +305,10 @@
             -webkit-touch-callout: none;
             -webkit-user-select: none;
         }
-        
-        .ios-install-banner {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #4285F4;
-            color: white;
-            padding: 12px;
-            text-align: center;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .ios-install-banner button {
-            background: white;
-            color: #4285F4;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .ios-install-banner button:hover {
-            background: #f0f0f0;
-        }
-        
-        .ios-install-banner .close-btn {
-            background: none;
-            color: white;
-            font-size: 24px;
-            padding: 0 10px;
-        }
-        
-        @media (display-mode: standalone) {
-            .ios-install-banner {
-                display: none;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 添加iOS安装提示横幅 -->
-        <div class="ios-install-banner" id="ios-install-banner">
-            <div>添加到主屏幕以获得更好的体验</div>
-            <button id="install-btn">安装</button>
-            <button class="close-btn" id="close-banner">×</button>
-        </div>
-        
-        <!-- 原有内容保持不变 -->
         <header>
             <h1>兼容Google Authenticator的2FA验证器</h1>
             <p class="subtitle">支持导入/导出，与Google Authenticator完全兼容</p>
